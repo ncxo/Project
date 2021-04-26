@@ -1,0 +1,11 @@
+body{
+    background-color: aqua;
+    font-family: 'Poppins', sans-serif;
+    font-weight:500
+}
+
+button{
+    padding: 50px;
+    border:2px solid black;
+    margin:40px;
+}
