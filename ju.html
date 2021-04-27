@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Jules</title>
+    <link href="material-components-web.min.css" rel="stylesheet">
+    <link href="icon.css" rel="stylesheet">
+    <script src="material-components-web.min.js"></script>
+    <link href="./css/all.css" rel="stylesheet">
+    <link hreflang="stylesheet" href="">
+    <link href="./css/all.css" href="style.css"
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <!--load all styles -->
+    <style>
+        :root {
+            --blue: #1e90ff;
+            --bg: #539797;
+            --tabcontent:#D0DEE7;
+        }
+
+        
+        body,
+        h1,
+        h2,
+        p,
+        table,
+        th,
+        tr,
+        td {
+            font-family: Roboto, RobotoDraft, Helvetica, Arial, sans-serif;
+            font-size: 0.75rem;
+        }
+
+        body {
+            overflow: hidden;
+            background-image: url("big.jpg");
+            background-size: 1920px 980px;
+            background-repeat: no-repeat;
+        }
+        input[type=checkbox] {
+            /* Double-sized Checkboxes */
+            -ms-transform: scale(1.3);
+            /* IE */
+            -moz-transform: scale(1.3);
+            /* FF */
+            -webkit-transform: scale(1.3);
+            /* Safari and Chrome */
+            -o-transform: scale(1.3);
+            /* Opera */
+            transform: scale(1.3);
+            padding: 0px;
+            margin: 0.1rem;
+            margin-top: 0.2rem;
+        }
+
+        #task-list {
+            position: absolute;
+            top: 0px;
+            left: 91%;
+            background-color: cornsilk;
+            color: navy;
+            width: 9%;
+            height: calc(26% + 14px);
+            border: 1px solid gray;
+        }
+
+        .small {
+            font-size: 0.75rem;
+            margin: 0px;
+            left: -3px;
+        }
+
+        #flt-nr {
+            width: 12%;
+            background-color: cornsilk;
+            border: 1px solid rgb(112, 54, 13);
+            ;
+        }
+
+        #flt-text {
+            width: 50%;
+            background-color:cornsilk;
+            border: 1px solid rgb(112, 54, 13);
+            ;
+        }
+
+        #flt-done {
+            background-color: cornsilk;
+            border: 1px solid rgb(112, 54, 13);
+            ;
+        }
+
+        .fixed_header {
+            top: 5px;
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        .fixed_header tbody {
+            display: block;
+            width: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: calc(100% - 28px);
+        }
+
+        .fixed_header thead tr {
+            display: block;
+            background-color: var(--bg);
+        }
+
+        .fixed_header thead {
+            background-color:var(--bg);
+        }
+
+        .fixed_header th,
+        .fixed_header td {
+            padding: 0px;
+            text-align: left;
+            width: 100%;
+            border-bottom: 1px solid gray;
+        }
+
+
+        #taches-lbl, #div-zone-edit {
+            position: absolute;
+            top: 0px;
+            left: calc(100% - 350px);
+            background-color:var(--bg);
+            color: cornsilk;
+            width: 350px;
+            min-height: 39px;
+            height: 6.5%;
+            border: 0px solid rgb(151, 120, 92);
+            font-size: 1rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            padding: 0.1rem;
+            padding-left: 1.5rem;
+
+        }
+
+
+        #div-triangle{
+            position: absolute;
+            top: 0px;
+            left: calc(60% - 350px);
+            background-color: rgb(236, 38, 38);
+            color: cornsilk;
+            width: calc(40%);
+            height: 21px;   
+        }
+        #div-trianglex{
+            position: absolute;
+            top: 21px;
+            left: calc(75% - 350px);
+            background-color:var(--bg);
+            color: cornsilk;
+            width: 25%;
+            height: 21px;   
+        }
+       .mdc-fab {
+            background-color:rgb(251, 255, 0);
+            color: black;
+        }
+
+        .bcontainer {
+            position: absolute;
+            top: -3px;
+            left: calc(100% - 350px);
+        }
+ 
+
+        .triangle {
+
+            border-right: 20px solid transparent;
+            border-top: 40px solid #D12738;
+            z-index: 100;
+            height: 0;
+            top: 0px;
+            width: 50%;
+            position: relative;
+            background: #D12738;
+            background: -moz-linear-gradient(top, rgba(209, 39, 56, 1) 0%, rgba(122, 23, 38, 1) 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(209, 39, 56, 1)), color-stop(100%, rgba(122, 23, 38, 1)));
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d12738', endColorstr='#7a1726', GradientType=0), filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+            z-index: 100;
+        }
+        
+        .mdc-fab { box-shadow: none !important; } 
+        .btn { box-shadow: none !important; }
+    </style>
+    <script>
+        var chatState = 0;
+        var whoami='?';
+        function chatR(force=-1) {
+            if(force==1)chatState=1;
+            if(force==0)chatState=0;
+            if(force==2)chatState=2;
+            
+            if (chatState == 0) {
+                document.getElementById("div-triangle").style.display = 'block';
+                document.getElementById("div-trianglex").style.display = 'block';
+                document.getElementById("span-chat-icon").innerHTML = 'send';
+                chatState=1;
+            }
+            else if(chatState==1){
+                let user_name = $( '#toDoctor' ).val();
+                let user_input = $( '#myMsg' ).val();
+                socket.emit( 'my event', {
+                    from_user:whoami,
+                    to_user : user_name,
+                    message : user_input
+                });
+                $( 'myMsg' ).val( '' ).focus();  
+                chatState=0;
+                document.getElementById("div-triangle").style.display = 'none';
+                document.getElementById("div-trianglex").style.display = 'none';
+                document.getElementById("span-chat-icon").innerHTML = 'chat';               
+            }else if(chatState==2){
+                chatState=0;
+                document.getElementById("div-triangle").style.display = 'none';
+                document.getElementById("div-trianglex").style.display = 'none';
+                document.getElementById("span-chat-icon").innerHTML = 'chat';  
+            }
+
+        }
+
+        var socket = io.connect('https://' + document.domain + ':' + location.port);
+        var nom,pren, nptext;
+        function run(){
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            const key = atob(urlParams.get('key'));
+            nom = atob(urlParams.get('nom64'));
+            pren = atob(urlParams.get('pren64'));
+            nptext=nom+' '+pren;
+            $.ajax({
+                url: "/log?text-np="+nptext,
+                cache: false,
+                success: function(json){
+                    var A=[];
+                    A=eval("A="+json);
+                    var rad=0;
+                    var hist="";
+                    for(var i in A){
+                        rad+=A[i][6];
+                        hist+=A[i][5]+" ("+A[i][7]+") : "+A[i][6]+"\n";
+                    }
+                    $("#input-pds").val(rad);
+                    document.getElementById('nuke').title=hist;
+                    
+                }
+            });
+            const bg = urlParams.get('bg');
+            if(typeof(PrevailHost)!=="undefined"){
+                whoami=PrevailHost.computerName;
+            }
+            else{
+                whoami = urlParams.get('me');
+            }
+            if(bg=='1'){
+                document.getElementById('bg').style.display='block';
+            }     
+            socket.on( 'connect', function() {
+              socket.emit( 'my event', {
+                data: 'User '+whoami+' Connected'
+                })
+            });
+            socket.on( 'my response', function( msg ) {
+                console.log( msg )
+                if(( typeof msg.to_user !== 'undefined' )&&(msg.message!=='')&&
+                ((msg.to_user==whoami)||(msg.to_user=='* TOUS *') )) {
+                    chatR(0);
+                    $("#myMsg").val("");
+                    document.getElementById('toDoctor').value=msg.from_user; 
+                    $("#recvMsg").html('<b style="color:white">'+msg.from_user+' :</b> '+msg.message);
+                }
+            });
+
+            $("#myMsg").on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    chatR(1);
+                    return;
+                }
+                if (e.key === 'Esc' || e.keyCode === 27) {
+                    chatR(0);
+                    return;
+                }                
+            });
+            $("#eddent").on('keyup', function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    closeTask(1);
+                    return;
+                }
+                if (e.key === 'Esc' || e.keyCode === 27) {
+                    closeTask(0);
+                    return;
+                }                
+            });
+
+
+        }
+
+        function newtask(){
+            document.getElementById('div-buttons').style.display='none';
+            document.getElementById('div-zone-edit').style.display='block';
+        }
+        function closeTask(mode=0){
+            document.getElementById('div-buttons').style.display='block';
+            document.getElementById('div-zone-edit').style.display='none';
+            if(mode==0){return;}
+        }
+
+    </script>
+</head>
+
+<body bgcolor="#00ff00" onload="run()"">
+
+    <img id="bg" src="jl.jpg" width="100%" style="display:none;position: absolute;top: 0px;left: 0px;margin: 0px;padding:0px" />
+    <div id="div-triangle" style="display: none;color: yellow;font-size: 1rem;">
+        <span id="recvMsg"></span><span id="span-closeChat" style="float: right;padding-top: 2px;padding-right: 3px;color: cornsilk;">
+            <i class="far fa-window-close" onclick="chatR(2)"></i></span>
+    </div>
+    <div id="div-trianglex" style="display: none;">
+        <select id="toDoctor" name="doctor"
+        style="font-size: 0.9rem;font-weight: bold; background-color: cornsilk; width:78px" >
+        <option value="ACCUEUIL">ACCUEUIL</option>
+        <option value="SECRETARIAT">SECRETARIAT</option>
+        <option value="BRIHOUM">BRIHOUM</option>
+        <option value="CAZAVET">CAZAVET</option>
+        <option value="E.LEPERT">E.LEPERT</option>
+        <option value="P.LEPERT">P.LEPERT</option>
+          <option value="MAJOREL">MAJOREL</option>
+          <option value="---">---</option>
+          <option value="* TOUS *">* TOUS *</option>
+        </select>       
+        <input id="myMsg" style="width: calc(100% - 90px)"/>
+    </div>       
+    <!--
+    <div id="div-triangle" style="display: none;">
+        <div class="triangle">
+
+        </div>
+        <span style="color: cornsilk;position: absolute;top:0%;left:2.5%;width:50%;z-index: 200;font-size: 1rem;">
+            Mr Dupont est la, je l'envoie? Il a oublie de nouveau sa Carte Vitale</span>
+    </div>
+    <div id="div-trianglex" style="display: none;">
+        <textarea style="position: absolute;left: 20%;font-size: 1rem;width: 70%;" rows="2" cols="20">en 5 min stp, mais prepare-le pour la pano cpdt
+        </textarea>
+    </div>
+ -->
+    <div id="chatbox" style="display:none;position: absolute;left:0.5%;top:7%;width:20%;height: 89%;background-color: cornsilk;">
+        <select style="width: 70%;font-size: 1rem;">
+            <option selected="selected">Accueuil</option>
+            <option>confrere</option>
+        </select>
+        <button class="mdc-fab  mdc-fab--mini mdc-fab--touch">
+            <div class="mdc-fab__ripple"></div>
+            <span class="material-icons mdc-fab__icon">close</span>
+            <div class="mdc-fab__touch"></div>
+        </button>
+        <div id="chat" style="height:84%;background: cornsilk;"></div>
+        <textarea>...</textarea>
+        <button class="mdc-fab  mdc-fab--mini mdc-fab--touch">
+            <div class="mdc-fab__ripple"></div>
+            <span class="material-icons mdc-fab__icon">send</span>
+            <div class="mdc-fab__touch"></div>
+        </button>
+    </div>
+
+    <div id="taches-lbl">
+ 
+    </div>
+    <div id="div-zone-edit" style="z-index: 555;display: none;color: cornsilk;">
+        <div id="div-edit" style="width:100%;">
+            <table width="360" style="position: relative;left: -25px;">
+                <tr>
+                    <td><input type="text" style="width:320px;font-size: 1.5rem;"
+                        id="eddent" value="99 aaaa" /></td>
+                    <td style="font-size: 1rem;position: relative;left:-8px">
+                        <i class="far fa-times-circle" style="color: rgb(248, 157, 157)"
+                            onclick="closeTask(0)"></i><br>
+                        <i class="far fa-check-circle" style="color: greenyellow;"
+                            onclick="addToList(document.getElementById('eddent').value);closeTask(1)"></i>
+                    </td>
+                </tr>
+            </table>
+            
+             
+             </table>
+        </div>   
+    </div>
+
+    <div id="task-list">
+        <span>5 tâches</span>
+        <table class="fixed_header">
+            <thead id="task-hdr">
+                <th>
+                    <input type="checkbox" id="flt-done" class="small" />
+                    <input type="text" id="flt-nr" class="small" />
+                    <input type="text" id="flt-text" class="small" />
+
+                </th>
+            </thead>
+            <tbody id="tbody">
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>14</b>
+                        carie
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>15</b>
+                        implant
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>12</b>
+                        endodontie
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>18</b>
+                        facette
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>7</b>
+                        couronne
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>10</b>
+                        orthodontie
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="checkbox" id="ck1" class="small" />
+                        <b>20</b>
+                        prothese partielle 20-23
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mdc-touch-target-wrapper bcontainer" id="top-bar">
+        <div id="div-buttons">
+        <button class="mdc-fab  mdc-fab--mini mdc-fab--touch" onclick="chatR()">
+            <div class="mdc-fab__ripple"></div>
+            <span class="material-icons mdc-fab__icon" id="span-chat-icon">chat</span>
+            <div class="mdc-fab__touch"></div>
+        </button>
+        <button class="mdc-fab  mdc-fab--mini mdc-fab--touch">
+            <div class="mdc-fab__ripple"></div>
+            <span class="material-icons mdc-fab__icon">add_a_photo</span>
+            <div class="mdc-fab__touch"></div>
+        </button>
+        <button class="mdc-fab  mdc-fab--mini mdc-fab--touch" style="position: relative;top:-3px;">
+            <div class="mdc-fab__ripple"></div>
+            <span class="material-icons mdc-fab__icon"><i class="fa fa-teeth"></i></span>
+
+            <div class="mdc-fab__touch"></div>
+        </button>
+        <button class="mdc-fab  mdc-fab--mini mdc-fab--touch" onclick="newtask()">
+            <div class="mdc-fab__ripple"></div>
+            <span class="material-icons mdc-fab__icon">add_task</span>
+            <div class="mdc-fab__touch"></div>
+        </button>
+        </div>
+
+    </div>
+
+    <script>
+        var w = document.getElementById("task-list").clientHeight -
+            document.getElementById("task-hdr").clientHeight - 1;
+        document.getElementById("tbody").style.height = w.toString() + "px";
+        function addToList(value){
+            var element = document.getElementById('tbody');
+
+            var res = value.split(" ");
+
+            element.innerHTML = element.innerHTML + "<tr><td><input type=\"checkbox\" id=\"ck1\" class=\"small\" />" + " <b>" + res[0] + "</b> " + res[1] + "</td></tr>";
+        }
+document.getElementById("eddent").addEventListener('keypress',function(e){
+            if(e.key == 'Enter'){
+                addToList(document.getElementById('eddent').value);
+            }
+        });
+    </script>
+    <div id="compt" style="position: absolute;top:65%;left: 50%;width:120px; font-size: 1rem; background-color: var(--tabcontent);">
+        <b style="background-color: yellow;" id="nuke">☢</b>
+        <input type="number" value="0" readonly="readonly" id="input-pds"
+            style="border:1px solid gray;width: 50px;font-weight: bold;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;background-color: #D0DEE7;" />
+        PDS
+    </div>
+    
+
+
+
+</body>
+
+</html>

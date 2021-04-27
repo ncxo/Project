@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>template to prevail</title>
+     <link rel="preload" href="fontz.css" as="style" onload="this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="fontz.css"></noscript>
+    <script src="jquery.min.js"></script>
+    <script src="jquery.form.min.js"></script>
+    <style>
+        
+    body {
+        padding: 0;
+        margin: 0px ;
+       
+      }
+      * {
+ font-size: 100%; 
+ font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
+}
+textarea , input{
+  border: 1px solid grey;
+}
+textarea{
+  width:100px;
+
+}
+.save-template{
+    background-color: cadetblue;
+}
+
+</style>
+<script>
+// By Jorhel Reyes
+jQuery.fn.deserializeArray = function (ObjectSerialized, isJson) 
+{
+    var $form = jQuery(this);
+    var json = {};
+        jQuery.each(ObjectSerialized, function(i, pair){
+            var name = decodeURIComponent(pair.name).split("[");
+            if( typeof name[1] != "undefined" ){
+                if( typeof json[name[0]] === "undefined"){ json[name[0]] = []; }
+                json[name[0]].push(decodeURIComponent(pair.value));
+            }else{
+                json[name[0]] = decodeURIComponent(pair.value);
+            }
+        });
+    var asignValue = function(element, val){
+        if( !element.length ){ return; }
+        if (element[0].type == "radio" || element[0].type == "checkbox") {
+            var $fieldWithValue = element.filter('[value="' + val + '"]');
+            var isFound = ($fieldWithValue.length > 0);
+            // Special case if the value is not defined; value will be "on"
+            if (!isFound && val == "on") {
+                element.first().prop("checked", true);
+            } else {
+                $fieldWithValue.prop("checked", isFound);
+            } 
+        } else { // input, textarea
+            element.val(val);
+        }
+    };
+    jQuery.each(json, function(name, value){
+        var element = '';
+        if( typeof value === "object" ){
+            element = $form.find('[name="' + name + '[]"]');
+            jQuery.each(value, function(k, val){
+                var elm = jQuery( element[k] );
+                asignValue(elm, val);
+            });
+        }else{
+            asignValue($form.find('[name="' + name + '"]'), value);
+        }
+    });
+    return this;
+}
+
+function glue(controlType){
+  const selector = controlType;
+  const bof = [].map.call(document.querySelectorAll(selector), function (el) {
+    el.addEventListener('input', updateValue);
+    console.log("attach INPUT evt to",el.id);
+    return el.id;
+  });
+  const selector2 = controlType;
+  const bofx = [].map.call(document.querySelectorAll(selector2), function (el) {
+    el.addEventListener('change', updateValue);
+    console.log("attach CHANGE evt to",el.id);
+    return el.id;
+  });
+
+}
+var scrn='?';
+function run(){  
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const key = atob(urlParams.get('key'));
+  document.getElementById('text-1614835072321').value=key;
+  const pds = urlParams.get('rad');
+  document.getElementById('text-rad').value=pds;
+  const dat = atob(urlParams.get('dat64'));
+  document.getElementById('text-dat').value=dat; 
+  scrn = urlParams.get('screen');
+  if(scrn!='PANO'){
+    document.querySelector('body').style.backgroundColor='rgb(21,21,34)';
+    document.querySelector('html').style.backgroundColor='rgb(21,21,34)';
+    document.querySelector('body').style.color='rgb(145,145,145)'; 
+  }
+  $.ajax({
+  method: "GET",
+  url: "/log?text-np="+key+"&text-dat="+dat
+})
+  .done(function( msg ) {
+    if(msg.length>5){
+      var A=eval(msg);
+      console.log(A);
+      document.getElementById("rowid").value=A[0][0];
+      if(A[0][5]==dat){
+        //already there
+        document.getElementById("rad-sign").style.backgroundColor='green';
+        document.getElementById("btn").innerHTML='Noter';
+        document.getElementById("btn").style.backgroundColor='green';
+        document.getElementById("doctor").value=A[0][7];
+      }
+      else{
+        document.getElementById("btn").innerHTML='Noter';
+        document.getElementById("btn").style.backgroundColor='rgb(22, 22, 21)';
+      }
+      //#21,21,34
+    }
+  });
+}
+
+var loadCalled=false;
+
+function saveData(){
+  var data = JSON.stringify( $("#form1").serializeArray() ); //  <-----------
+    console.log('!#$'+btoa(data))
+//    onSubmit(document.querySelector('form'));
+}
+
+function getData(){
+  loadCalled=true;
+    console.log('!#%getDataCallback')
+}
+function getDataCallback(strDataB64){
+  var data=JSON.parse(atob(strDataB64));
+  $("#form1").deserializeArray(data);
+    //document.getElementById('textarea-1612236045293').value=data;
+    loadCalled=false;
+
+}
+
+function onSubmit( form ){
+  var data = JSON.stringify( $(form).serializeArray() ); //  <-----------
+
+  console.log( data );
+  return false; //don't submit
+}
+function updateValue(e) {
+  if(loadCalled)return;
+  saveData()
+}
+// post-submit callback 
+function showResponse(responseText, statusText, xhr, $form)  { 
+    // for normal html responses, the first argument to the success callback 
+    // is the XMLHttpRequest object's responseText property 
+ 
+    // if the ajaxSubmit method was passed an Options Object with the dataType 
+    // property set to 'xml' then the first argument to the success callback 
+    // is the XMLHttpRequest object's responseXML property 
+ 
+    // if the ajaxSubmit method was passed an Options Object with the dataType 
+    // property set to 'json' then the first argument to the success callback 
+    // is the json data object returned by the server 
+ 
+if(statusText=="success"){
+    document.getElementById("rad-sign").style.backgroundColor='green';
+    document.getElementById("btn").innerHTML='Noter';
+    document.getElementById("btn").style.backgroundColor='green';
+    var rt;
+    eval("rt="+responseText);
+    document.getElementById("rowid").value=rt["id"];
+  }
+    else{
+      document.getElementById("btn").innerHTML='ERREUR NET';  
+      document.getElementById("rad-sign").style.backgroundColor='red';
+      document.getElementById("btn").style.backgroundColor='red';
+    }
+} 
+function jrnl(){
+
+  $("#form1").ajaxSubmit({url: '/log', type: 'post',success:       showResponse})  
+}
+</script>
+  </head>
+
+<body onload="run()">
+ <style> html, body, p, input, textarea {background:rgb(232,232,232);font-size: 0.85rem;}
+html,body{
+  overflow: hidden;
+}
+</style>
+ <form onsubmit='return onSubmit(this)' id="form1" name="form1">
+
+ <div class="rendered-form">
+   <div class="formbuilder-text form-group field-text-1614835072321">
+     <table>
+<tr>
+     <td id="rad-sign" style="font-size:2rem;background-color: yellow;color: black;">&#9762;</td>
+     <td>
+     <input type="text" class="form-control" name="text-np"
+      access="false" id="text-1614835072321" style="width:120px;background-color: cornsilk;"/><br>
+      <input type="text" class="form-control" name="text-dat"
+      access="false" id="text-dat" style="width:120px;background-color: cornsilk;"/><br>
+            
+      <input type="text" class="form-control" name="text-rad"
+      access="false" id="text-rad" style="background-color: cornsilk;width:40px"/> PDS<br>
+
+<input type="hidden" name="rowid" id="rowid" value=""/>
+
+      </td>
+      </tr>  </table>
+
+       
+        <select id="doctor" name="doctor"
+        style="font-size: 0.9rem;font-weight: bold; background-color: cornsilk; width:78px" >
+        <option value="BRIHOUM">BRIHOUM</option>
+        <option value="CAZAVET">CAZAVET</option>
+        <option value="E.LEPERT">E.LEPERT</option>
+        <option value="P.LEPERT">P.LEPERT</option>
+          <option value="MAJOREL">MAJOREL</option>
+        </select>
+        <button style="font-size: 0.9rem;font-weight: bold; color: cornsilk;width:68px; background-color: rgb(22, 22, 21); height:22px"
+        onclick="jrnl()" id="btn">
+        Noter </button> 
+    </div></div>
+ 
+      </form>
+      <script>/*
+        var k=0;
+        $('#doctor').on('mousedown', function(e) {
+          k++;
+          console.log("!#@ ACTIVATE");
+          await new Promise(r => setTimeout(r, 5000));
+          return;
+   e.preventDefault();
+   this.blur();
+   window.focus();
+   //  document.getElementById('select').show();
+ });*/
+      </script>
+  </body>
+</html>
