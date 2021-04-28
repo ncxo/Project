@@ -9,7 +9,7 @@
     <script src="material-components-web.min.js"></script>
     <link href="./css/all.css" rel="stylesheet">
     <link hreflang="stylesheet" href="">
-    <link href="./css/all.css" href="style.css"
+    <link href="./css/all.css" href="style.css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
     <!--load all styles -->
@@ -36,7 +36,7 @@
         body {
             overflow: hidden;
             background-image: url(small.jpg);
-            background-size: 1920px 980px;
+            background-size: auto;
             background-repeat: no-repeat;
         }
         input[type=checkbox] {
@@ -175,7 +175,6 @@
  
 
         .triangle {
-
             border-right: 20px solid transparent;
             border-top: 40px solid #D12738;
             z-index: 100;
@@ -184,10 +183,8 @@
             width: 50%;
             position: relative;
             background: #D12738;
-            background: -moz-linear-gradient(top, rgba(209, 39, 56, 1) 0%, rgba(122, 23, 38, 1) 100%);
-            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(209, 39, 56, 1)), color-stop(100%, rgba(122, 23, 38, 1)));
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d12738', endColorstr='#7a1726', GradientType=0), filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
-            z-index: 100;
+            /* background: -moz-linear-gradient(top, rgba(209, 39, 56, 1) 0%, rgba(122, 23, 38, 1) 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(209, 39, 56, 1)), color-stop(100%, rgba(122, 23, 38, 1))); */
         }
         
         .mdc-fab { box-shadow: none !important; } 
@@ -385,7 +382,7 @@
                         <i class="far fa-times-circle" style="color: rgb(248, 157, 157)"
                             onclick="closeTask(0)"></i><br>
                         <i class="far fa-check-circle" style="color: greenyellow;"
-                            onclick="addToList(document.getElementById('eddent').value);closeTask(1)"></i>
+                            onclick=""></i>
                     </td>
                 </tr>
             </table>
@@ -488,22 +485,32 @@
     </div>
 
     <script>
-        var w = document.getElementById("task-list").clientHeight -
-            document.getElementById("task-hdr").clientHeight - 1;
-        document.getElementById("tbody").style.height = w.toString() + "px";
-        function addToList(value){
-            var element = document.getElementById('tbody');
+        var w = document.getElementById("task-list").clientHeight
+                document.getElementById("task-hdr").clientHeight - 1;
+                document.getElementById("tbody").style.height = w.toString() + "px";
 
-            var res = value.split(" ");
+        function addToList(value){
+
+            if(value === ''){
+                return ''
+            }
+            const element = document.getElementById('tbody');
+
+            const res = value.split(" ");
 
             element.innerHTML = element.innerHTML + "<tr><td><input type=\"checkbox\" id=\"ck1\" class=\"small\" />" + " <b>" + res[0] + "</b> " + res[1] + "</td></tr>";
-        }
-document.getElementById("eddent").addEventListener('keypress',function(e){
-            if(e.key == 'Enter'){
-                addToList(document.getElementById('eddent').value);
+
+            document.getElementById("eddent").addEventListener('keypress',function(e){
+                // addToList(document.getElementById('eddent').value);closeTask(1)
+                const taskList = document.getElementById("task-list")
+                const elementList = document.querySelectorAll("task-list table")
+                console.log('Enter')
+                return
             }
-        });
+            });
+        }
     </script>
+
     <div id="compt" style="position: absolute;top:65%;left: 50%;width:120px; font-size: 1rem; background-color: var(--tabcontent);">
         <b style="background-color: yellow;" id="nuke">☢</b>
         <input type="number" value="0" readonly="readonly" id="input-pds"
