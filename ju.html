@@ -9,9 +9,9 @@
     <script src="material-components-web.min.js"></script>
     <link href="./css/all.css" rel="stylesheet">
     <link hreflang="stylesheet" href="">
-    <link href="./css/all.css" href="style.css"
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+    <link href="./css/all.css" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"defer></script>
     <!--load all styles -->
     <style>
         :root {
@@ -186,12 +186,46 @@
             background: #D12738;
             background: -moz-linear-gradient(top, rgba(209, 39, 56, 1) 0%, rgba(122, 23, 38, 1) 100%);
             background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(209, 39, 56, 1)), color-stop(100%, rgba(122, 23, 38, 1)));
-            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d12738', endColorstr='#7a1726', GradientType=0), filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d12738', endColorstr='#7a1726', GradientType=0);filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
             z-index: 100;
         }
         
         .mdc-fab { box-shadow: none !important; } 
         .btn { box-shadow: none !important; }
+
+        body{
+
+background-image: url("./image/tiny.png");
+background-size: cover;
+}
+
+
+@media only screen and (min-width:640px){
+
+body{
+background-image: url("./image/small.jpg");
+background-size: 100% 100% ;
+background-repeat: no-repeat;
+}
+
+
+
+
+}
+
+@media only screen and (min-width:980px){
+
+body{
+background-image: url("./image/big.jpg");
+background-size: cover;
+}
+
+
+
+
+}
+
+
     </style>
     <script>
         var chatState = 0;
