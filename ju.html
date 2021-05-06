@@ -63,7 +63,7 @@
             color: navy;
             width: 9%;
           /*  height: calc(2% + 14px); */
-          min-height: 220px;
+          
             border: 1px solid gray;
         }
 
@@ -211,7 +211,6 @@ background-repeat: no-repeat;
 
 
 
-
 }
 
 @media only screen and (min-width:980px){
@@ -219,14 +218,33 @@ background-repeat: no-repeat;
 body{
 background-image: url("./image/big.jpg");
 background-size: cover;
+
+}
+
+#task-list{
+ min-height:140px;
 }
 
 
 
 
+
 }
 
+@media only screen and (min-width:1533px){
 
+#task-list{
+ min-height:220px;
+}
+
+}
+
+@media only screen and (min-width:1919px){
+ #task-list{
+ min-height:220px;
+ }
+
+}
     </style>
     <script>
         var chatState = 0;
@@ -488,7 +506,7 @@ background-size: cover;
                     <td>
                         <input type="checkbox" id="ck1" class="small" />
                         <b>20</b>
-                        prothese partielle 20-23
+                        prothese 
                     </td>
                 </tr>
             </tbody>
